@@ -1,0 +1,49 @@
+<?xml version="1.0" ?>
+<project name="downloader" default="dist">
+    
+    <property name="message" value="Building the .jar file." />
+    <property name="src" location="src/main/java" />
+    <property name="output" location="target/classes" />
+    
+   	<path id="javac.classpath">
+		<fileset dir="lib" includes="*.jar" /> 
+	</path>
+    
+    <target name="dist" depends="package">
+        <echo>
+        	${ant.project.name}
+            ${javac.classpath:toString}
+        </echo>
+    </target>
+    
+    <target name="init">
+        <mkdir dir="${output}" />
+    </target>
+    
+     <target name="clean">
+        <delete dir="${output}" />
+    </target>
+    
+    <target name="compile" depends="init">
+        <javac srcdir="${src}" destdir="${output}">
+        	<classpath refid="javac.classpath" />
+        </javac>
+    </target>
+    
+    <target name="package" depends="compile">
+        <jar destfile="target/${ant.project.name}.jar" basedir="${output}" includes="**/*.class" >
+            <manifest>
+                <attribute name="Author" value="${user.name}"/>
+                <attribute name="Manifest-Version" value="1.0"/>
+                <attribute name="Main-Class" value="org.esquivo.downloader.Main"/>    
+                <section name="Shared">
+                    <attribute name="Title" value="Donwloader"/>
+                    <attribute name="Vemdor" value="Esquivo"/>
+                </section>
+                <section name="Copyright">
+                    <attribute name="Copy" value="(C) Esquivo 2012"/>
+                </section>
+            </manifest>
+        </jar>
+    </target>
+</project>
