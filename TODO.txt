@@ -7,16 +7,18 @@
   
 * Crear un Ant para la construcción del proyecto y la creación del entregable binario (downloader.jar).
 
-- Añadir a Ant la creación de un entregable independiente con el código fuente del programa (downloader-sources.jar).
+* Añadir a Ant la creación de un entregable independiente con el código fuente del programa (downloader-sources.jar).
 
-- Añadir a Ant la creación de un entregable independiente con el javadoc del programa (downloader-javadoc.jar).
+* Añadir a Ant la creación de un entregable independiente con el javadoc del programa (downloader-javadoc.jar).
 
-- Integrar las pruebas unitarias en Ant (test), aqui tendras que incluir el jar de Junit en lib, y usar la tarea Ant para ejecutar las pruebas.
+* Integrar las pruebas unitarias en Ant (test), aqui tendras que incluir el jar de Junit en lib, y usar la tarea Ant para ejecutar las pruebas.
   NOTA: Es aconsejable tener en Ant un classpath para compilar el codigo y otro para ejecutar las pruebas, esto ya te lo explicare, sino anotalo en dudas mas abajo, :)
   
 - Añadir a Ant la creación de un zip (dist), con el fichero README.txt, LICENSE.txt y los entregables binarios jar, sources y javadoc.
 
-- Pasar los mensajes de la lib a slf4j.
++ Meter javadoc en el codigo de la libreria
+
+* Pasar los mensajes de la lib a slf4j.
 
 - Hacer un analisis de requisitos para la nueva version de la aplicación.
 

@@ -15,9 +15,19 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * The Class BufferedHCDownloader.
+ * 
+ * @author woo
+ */
 public class BufferedHCDownloader implements Downloader {
+	
+	/** The Constant LOG. */
 	private static final Logger LOG = LoggerFactory.getLogger(BufferedHCDownloader.class);
 	
+	/* (non-Javadoc)
+	 * @see org.esquivo.downloader.Downloader#download(java.net.URL)
+	 */
 	public File download(URL url) throws IOException {
 		HttpClient httpclient = new DefaultHttpClient();
 		BufferedInputStream in = null;
