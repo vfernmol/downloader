@@ -1,46 +1,46 @@
 <?xml version="1.0" ?>
 <project name="downloader" default="dist">
 
-	<!-- Override properties -->
-	<property file="build.properties" />
+    <!-- Override properties -->
+    <property file="build.properties" />
 
-	<!-- Build properties -->
-	<property name="lib.dir" location="lib" />
-	<property name="build.dir" location="target" />
-	<property name="src" location="src/main/java" />
-	<property name="resources" location="src/main/resources" />
-	<property name="classes" location="${build.dir}/classes" />
-	<property name="test" location="src/test/java" />
-	<property name="test.resources" location="src/test/resources" />
-	<property name="test.classes" location="${build.dir}/test-classes" />
-	<property name="test.reports.dir" location="${build.dir}/test-reports" />
-	<property name="test.classes.intrumented" location="${build.dir}/test-classes-instrumented" />
-	<property name="covertura.reports.dir" location="${build.dir}/covertura-report" />
-	<property name="javadoc.output" location="${build.dir}/javadoc" />
+    <!-- Build properties -->
+    <property name="lib.dir" location="lib" />
+    <property name="build.dir" location="target" />
+    <property name="src" location="src/main/java" />
+    <property name="resources" location="src/main/resources" />
+    <property name="classes" location="${build.dir}/classes" />
+    <property name="test" location="src/test/java" />
+    <property name="test.resources" location="src/test/resources" />
+    <property name="test.classes" location="${build.dir}/test-classes" />
+    <property name="test.reports.dir" location="${build.dir}/test-reports" />
+    <property name="test.classes.intrumented" location="${build.dir}/test-classes-instrumented" />
+    <property name="covertura.reports.dir" location="${build.dir}/covertura-report" />
+    <property name="javadoc.output" location="${build.dir}/javadoc" />
 
-	<!-- Property files -->
-	<property file="jar.properties" />
-	<property file="common.properties" />
+    <!-- Property files -->
+    <property file="jar.properties" />
+    <property file="common.properties" />
 
-	<!-- Classpath declarations -->
-	<path id="javac.classpath">
-		<fileset dir="${lib.dir}">
-			<include name="${commons-logging.jar}" />
-			<include name="${httpcore.jar}" />
-			<include name="${httpclient.jar}" />
-			<include name="${log4j.jar}" />
-			<include name="${slf4j-api.jar}" />
-			<include name="${slf4j-log4j12.jar}" />
-		</fileset>
-	</path>
-	
-    <path id="test.classpath">
-    	<path refid="javac.classpath" />
-    	<fileset dir="${lib.dir}">
-    		<include name="${junit.jar}" />
-    	</fileset>
+    <!-- Classpath declarations -->
+    <path id="javac.classpath">
+        <fileset dir="${lib.dir}">
+            <include name="${commons-logging.jar}" />
+            <include name="${httpcore.jar}" />
+            <include name="${httpclient.jar}" />
+            <include name="${log4j.jar}" />
+            <include name="${slf4j-api.jar}" />
+            <include name="${slf4j-log4j12.jar}" />
+            <include name="${commons-io.jar}" />
+            <include name="${commons-cli.jar}" />
+        </fileset>
     </path>
-	
+    <path id="test.classpath">
+        <path refid="javac.classpath" />
+        <fileset dir="${lib.dir}">
+            <include name="${junit.jar}" />
+        </fileset>
+    </path>
     <path id="cobertura.classpath">
         <fileset dir="${lib.dir}">
             <include name="${cobertura.jar}" />
@@ -50,126 +50,137 @@
             <include name="${log4j.jar}" />
         </fileset>
     </path>
-	
-    <!-- Cobertura task definition -->
-    <taskdef resource="tasks.properties" classpathref="cobertura.classpath" />	
-	
-	<!-- Target -->
-	<target name="init">
-		<mkdir dir="${classes}" />
-		<mkdir dir="${javadoc.output}" />
-	</target>
+    <path id="checkstyle.classpath">
+        <fileset dir="${lib.dir}">
+            <include name="${checkstyle-all.jar}" />
+            <!-- <include name="${antlr.jar}" /> <include name="${commons-beanutils-core.jar}" /> <include name="${commons-cli.jar}" 
+                /> <include name="${google-collections.jar}" /> -->
+        </fileset>
+    </path>
+    <path id="pmd.classpath">
+        <fileset dir="${lib.dir}">
+            <include name="${pmd.jar}" />
 
-	<target name="clean">
-		<delete dir="${classes}" />
-	</target>
+            <include name="${jaxen.jar}" />
+            <include name="${asm-pmd.jar}" />
+        </fileset>
+    </path>
 
-	<target name="compile" depends="init">
-		<copy todir="${classes}">
-			<fileset dir="${resources}" />
-		</copy>
-		<javac srcdir="${src}" destdir="${classes}" encoding="${java.encoding}" target="${java.target}" source="${java.source}" deprecation="${java.deprecation}" debug="${java.debug}" debuglevel="${java.debuglevel}" verbose="${java.verbose}" fork="false" includeantruntime="${java.includeantruntime}">
-			<classpath refid="javac.classpath" />
-			<compilerarg value="-Xlint:${java.xlint}" />
-		</javac>
-	</target>
+    <!-- task definitions -->
+    <taskdef resource="tasks.properties" classpathref="cobertura.classpath" />
+    <taskdef resource="checkstyletask.properties" classpathref="checkstyle.classpath" />
+    <taskdef name="pmd" classname="net.sourceforge.pmd.ant.PMDTask" classpathref="pmd.classpath" />
 
-	<target name="package" depends="compile">
-		<jar destfile="target/${ant.project.name}.jar" basedir="${classes}" includes="**/*.class">
-			<manifest>
-				<attribute name="Author" value="${user.name}" />
-				<attribute name="Manifest-Version" value="1.0" />
-				<attribute name="Main-Class" value="org.esquivo.downloader.Main" />
-				<section name="Shared">
-					<attribute name="Title" value="Donwloader" />
-					<attribute name="Vendor" value="${manifest.vendor}" />
-				</section>
-				<section name="Copyright">
-					<attribute name="Copy" value="(C) Esquivo 2012" />
-				</section>
-			</manifest>
-		</jar>
-	</target>
+    <!-- Target -->
+    <target name="init">
+        <mkdir dir="${classes}" />
+        <mkdir dir="${javadoc.output}" />
+    </target>
 
-	<!-- Creates javadoc of java source files -->
-	<target name="javadoc" depends="compile">
-		<javadoc destdir="${javadoc.output}" packagenames="*" author="true" version="true" windowtitle="${ant.project.name} Javadoc">
-			<fileset dir="${src}">
-				<exclude name="**/*.xml" />
-				<exclude name="**/*.properties" />
-			</fileset>
+    <target name="clean">
+        <delete dir="${classes}" />
+    </target>
 
-			<doctitle><![CDATA[ <h1>${ant.project.name}</h1> ]]></doctitle>
-			<bottom><![CDATA[ <i>Copyright &#169; ${YEAR} ${manifest.vendor}  Build version: ${build.version}</i> ]]></bottom>
-			<classpath refid="javac.classpath" />
-			<!--
-			<link href="http://java.sun.com/javase/6/docs/api/" />
-			-->
-		</javadoc>
-	</target>
+    <target name="compile" depends="init">
+        <copy todir="${classes}">
+            <fileset dir="${resources}" />
+        </copy>
+        <javac srcdir="${src}" destdir="${classes}" encoding="${java.encoding}" target="${java.target}" source="${java.source}"
+            deprecation="${java.deprecation}" debug="${java.debug}" debuglevel="${java.debuglevel}" verbose="${java.verbose}"
+            fork="false" includeantruntime="${java.includeantruntime}">
+            <classpath refid="javac.classpath" />
+            <compilerarg value="-Xlint:${java.xlint}" />
+        </javac>
+    </target>
 
-	<target name="package-javadoc" depends="javadoc">
-		<zip destfile="target/${ant.project.name}-javadoc.jar" basedir="${javadoc.output}" includes="**/*" />
-	</target>
+    <target name="package" depends="compile">
+        <jar destfile="${build.dir}/${ant.project.name}.jar" basedir="${classes}" includes="**/*.class">
+            <manifest>
+                <attribute name="Author" value="${user.name}" />
+                <attribute name="Manifest-Version" value="1.0" />
+                <attribute name="Main-Class" value="org.esquivo.downloader.Main" />
+                <section name="Shared">
+                    <attribute name="Title" value="Donwloader" />
+                    <attribute name="Vendor" value="${manifest.vendor}" />
+                </section>
+                <section name="Copyright">
+                    <attribute name="Copy" value="(C) Esquivo 2012" />
+                </section>
+            </manifest>
+        </jar>
+    </target>
 
-	<target name="package-sources" depends="init">
-		<zip destfile="target/${ant.project.name}-sources.jar" basedir="${src}" includes="**/*" />
-	</target>
+    <!-- Creates javadoc of java source files -->
+    <target name="javadoc" depends="compile">
+        <javadoc destdir="${javadoc.output}" packagenames="*" author="true" version="true"
+            windowtitle="${ant.project.name} Javadoc">
+            <fileset dir="${src}">
+                <exclude name="**/*.xml" />
+                <exclude name="**/*.properties" />
+            </fileset>
+            <doctitle><![CDATA[ <h1>${ant.project.name}</h1> ]]></doctitle>
+            <bottom><![CDATA[ <i>Copyright &#169; ${YEAR} ${manifest.vendor}  Build version: ${build.version}</i> ]]></bottom>
+            <classpath refid="javac.classpath" />
+            <!-- <link href="http://java.sun.com/javase/6/docs/api/" /> -->
+        </javadoc>
+    </target>
 
-	<target name="dist" depends="package, package-sources, package-javadoc">
-		<echo>	
-        	${ant.project.name}
-            ${toString:javac.classpath}
-        </echo>
-	
-		<zip destfile="target/${ant.project.name}-dist.zip">
-		    <!-- <zipfileset dir="${build.dir}" includes="${ant.project.name}*.jar" /> -->
-			<zipfileset dir="${build.dir}" includes="${ant.project.name}-sources.jar" />
-		    <zipfileset dir="${build.dir}" includes="${ant.project.name}-javadoc.jar" />
-			<zipfileset dir="${build.dir}" includes="${ant.project.name}.jar" />
-			<zipfileset dir="." includes="LICENSE.txt" />
-			<zipfileset dir="." includes="README.md" />		
-		</zip>
-	</target>
-	
+    <target name="package-javadoc" depends="javadoc">
+        <zip destfile="${build.dir}/${ant.project.name}-javadoc.jar" basedir="${javadoc.output}" includes="**/*" />
+    </target>
+
+    <target name="package-sources" depends="init">
+        <zip destfile="${build.dir}/${ant.project.name}-sources.jar" basedir="${src}" includes="**/*" />
+    </target>
+
+    <target name="dist" depends="package, package-sources, package-javadoc">
+        <zip destfile="${build.dir}/${ant.project.name}-dist.zip">
+            <!-- <zipfileset dir="${build.dir}" includes="${ant.project.name}*.jar" /> -->
+            <zipfileset dir="${build.dir}">
+                <include name="${ant.project.name}-sources.jar" />
+                <include name="${ant.project.name}-javadoc.jar" />
+                <include name="${ant.project.name}.jar" />
+                <include name="LICENSE.txt" />
+                <include name="README.md" />
+            </zipfileset>
+        </zip>
+    </target>
+
     <!-- Unit Testing -->
 
-	<!--  Launch junit tests -->
+    <!-- Launch junit tests -->
     <target name="test-init" description="Initialize the enviroment">
-    	<mkdir dir="${test.classes}" />
+        <mkdir dir="${test.classes}" />
         <mkdir dir="${test.reports.dir}" />
         <mkdir dir="${test.reports.dir}/xml" />
         <mkdir dir="${test.classes.intrumented}" />
     </target>
-	
-	<target name="compile-test" depends="test-init, compile">
-		<!-- TODO : Add resources
-		<copy todir="${test.classes}">
-			<fileset dir="${test.resources}" />
-		</copy>
-		-->
-		<javac srcdir="${test}" destdir="${test.classes}" encoding="${java.encoding}" target="${java.target}" source="${java.source}" deprecation="${java.deprecation}" debug="${java.debug}" debuglevel="${java.debuglevel}" verbose="${java.verbose}" fork="false" includeantruntime="${java.includeantruntime}">
-			<classpath refid="test.classpath" />
-        	<classpath>
-            	<path location="${classes}"/>
-        	</classpath>
-			<compilerarg value="-Xlint:${java.xlint}" />
-		</javac>
-	</target>
-    	
-    <target name="test" depends="compile-test">
-    	<echo>${java.version}</echo>
-        <junit printsummary="false" filtertrace="false" showoutput="true" fork="${junit.fork}" 
-                haltonerror="${test.failonerror}">
+
+    <target name="compile-test" depends="test-init, compile">
+        <!-- TODO : Add resources <copy todir="${test.classes}"> <fileset dir="${test.resources}" /> </copy> -->
+        <javac srcdir="${test}" destdir="${test.classes}" encoding="${java.encoding}" target="${java.target}"
+            source="${java.source}" deprecation="${java.deprecation}" debug="${java.debug}" debuglevel="${java.debuglevel}"
+            verbose="${java.verbose}" fork="false" includeantruntime="${java.includeantruntime}">
+            <classpath refid="test.classpath" />
+            <classpath>
+                <path location="${classes}" />
+            </classpath>
+            <compilerarg value="-Xlint:${java.xlint}" />
+        </javac>
+    </target>
+
+    <target name="test" depends="compile-test, cover-instrument">
+        <echo>${java.version}</echo>
+        <junit printsummary="false" filtertrace="false" showoutput="true" fork="${junit.fork}" haltonerror="${test.failonerror}">
             <sysproperty key="net.sourceforge.cobertura.datafile" file="${build.dir}/cobertura.ser" />
             <classpath>
-                <path location="${test.classes.intrumented}"/>
-                <path location="${test.classes}"/>
-                <path location="${classes}"/>
+                <path location="${test.classes.intrumented}" />
+                <path location="${test.classes}" />
+                <path location="${classes}" />
             </classpath>
             <classpath refid="test.classpath" />
-        	<classpath refid="cobertura.classpath" />
-            
+            <classpath refid="cobertura.classpath" />
+
             <batchtest todir="${test.reports.dir}/xml">
                 <fileset dir="${test.classes}" includes="**/*Test.class" />
             </batchtest>
@@ -185,20 +196,43 @@
             </report>
         </junitreport>
     </target>
-	
+
     <!-- Intrument classes for coverage analisis -->
     <target name="cover-instrument" depends="compile">
         <cobertura-instrument todir="${test.classes.intrumented}" datafile="${build.dir}/cobertura.ser">
             <fileset dir="${classes}">
-                <include name="**/*.class"/>
+                <include name="**/*.class" />
             </fileset>
         </cobertura-instrument>
     </target>
-    
-    <!--  Generate coverage report -->
+
+    <!-- Generate coverage report -->
     <target name="cover-report" depends="cover-instrument, test">
         <cobertura-report srcdir="${src}" destdir="${covertura.reports.dir}" datafile="${build.dir}/cobertura.ser" />
     </target>
 
+    <target name="checkstyle" depends="init">
+        <checkstyle config="${resources}/sun_checks.xml">
+            <fileset dir="${src}" includes="**/*.java" />
+
+            <!-- Location of cache-file. Something that is project specific -->
+            <property key="checkstyle.cache.file" file="${build.dir}/cachefile" />
+        </checkstyle>
+    </target>
+
+    <target name="pmd">
+        <pmd shortfilenames="true">
+            <ruleset>rulesets/java/basic.xml</ruleset>
+            <ruleset>rulesets/java/design.xml</ruleset>
+            <ruleset>rulesets/java/coupling.xml</ruleset>
+            <ruleset>rulesets/java/empty.xml</ruleset>
+            <ruleset>rulesets/java/imports.xml</ruleset>
+            
+            <formatter type="html" toFile="${build.dir}/pmd_report.html" />
+            <fileset dir="${src}">
+                <include name="**/*.java" />
+            </fileset>
+        </pmd>
+    </target>
 
 </project>
