@@ -20,11 +20,11 @@
 
 * Pasar los mensajes de la lib a slf4j.
 
-- Leer bloques y no caracter a caracter
+* Leer bloques y no caracter a caracter
 
-- Añadir checkstyle a Ant.
+* Añadir checkstyle a Ant.
 
-- Añadir PMD a Ant.
+* Añadir PMD a Ant.
 
 
 - Probar algun sistema como getopt para Main (Opciones simples un caracter (-a), largas (--algo) y simple incluir una -h (--help opcional) que llame a usage()
