@@ -28,7 +28,7 @@ public class URLDownloaderTest {
 	
 	@Parameters
 	public static Collection<Object[]> data() {
-	   Object[][] data = new Object[][] { { new URLDownloader() }, { new HCDownloader() }, { new BufferedURLDownloader() }, {new BufferedHCDownloader()} };
+	   Object[][] data = new Object[][] { { new BufferedURLDownloader() }, {new BufferedHCDownloader()} };
 	   
 	   return Arrays.asList(data);
 	 }

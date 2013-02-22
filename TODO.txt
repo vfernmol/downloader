@@ -14,13 +14,24 @@
 * Integrar las pruebas unitarias en Ant (test), aqui tendras que incluir el jar de Junit en lib, y usar la tarea Ant para ejecutar las pruebas.
   NOTA: Es aconsejable tener en Ant un classpath para compilar el codigo y otro para ejecutar las pruebas, esto ya te lo explicare, sino anotalo en dudas mas abajo, :)
   
-- Añadir a Ant la creación de un zip (dist), con el fichero README.txt, LICENSE.txt y los entregables binarios jar, sources y javadoc.
+* Añadir a Ant la creación de un zip (dist), con el fichero README.txt, LICENSE.txt y los entregables binarios jar, sources y javadoc.
 
 + Meter javadoc en el codigo de la libreria
 
 * Pasar los mensajes de la lib a slf4j.
 
+* Leer bloques y no caracter a caracter
+
+* Añadir checkstyle a Ant.
+
+* Añadir PMD a Ant.
+
+
+- Probar algun sistema como getopt para Main (Opciones simples un caracter (-a), largas (--algo) y simple incluir una -h (--help opcional) que llame a usage()
+
 - Hacer un analisis de requisitos para la nueva version de la aplicación.
+
+
 
 
 - Convertir el proyecto a Maven.
