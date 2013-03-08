@@ -82,9 +82,11 @@
     </target>
 
     <target name="compile" depends="init">
+        <!-- 
         <copy todir="${classes}">
             <fileset dir="${resources}" />
         </copy>
+         -->
         <javac srcdir="${src}" destdir="${classes}" encoding="${java.encoding}" target="${java.target}" source="${java.source}"
             deprecation="${java.deprecation}" debug="${java.debug}" debuglevel="${java.debuglevel}" verbose="${java.verbose}"
             fork="false" includeantruntime="${java.includeantruntime}">

@@ -16,8 +16,6 @@
   
 * Añadir a Ant la creación de un zip (dist), con el fichero README.txt, LICENSE.txt y los entregables binarios jar, sources y javadoc.
 
-+ Meter javadoc en el codigo de la libreria
-
 * Pasar los mensajes de la lib a slf4j.
 
 * Leer bloques y no caracter a caracter
@@ -26,13 +24,18 @@
 
 * Añadir PMD a Ant.
 
+* Probar algun sistema como getopt para Main (Opciones simples un caracter (-a), largas (--algo) y simple incluir una -h (--help opcional) que llame a usage()
 
-- Probar algun sistema como getopt para Main (Opciones simples un caracter (-a), largas (--algo) y simple incluir una -h (--help opcional) que llame a usage()
++ Meter javadoc en el codigo de la libreria
+
+? Meter en el jar solo los resources que necesita el programa (libreria), quitar los xmls de pruebas y logeo. 
+
+- Añadir opciónes de tiempo de espera para las peticiones (connection timeout y read timeout).
+
+
+- Ant JUnit Reports falla al compilar el xslt en java 1.6 (investigar)
 
 - Hacer un analisis de requisitos para la nueva version de la aplicación.
-
-
-
 
 - Convertir el proyecto a Maven.
 
