@@ -3,7 +3,9 @@ package org.esquivo.downloader;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import org.apache.commons.cli.BasicParser;
 import org.apache.commons.cli.CommandLine;
@@ -29,24 +31,22 @@ public class Main {
 
 	/**
 	 * The main method.
-	 *
-	 * @param args the arguments
+	 * 
+	 * @param args
+	 *            the arguments
 	 */
 	public static void main(String[] args) {
 		int connectionTimeout = 0;
 		int readTimeout = 0;
-		
-		
+
 		// crear grupo de opciones (u | h | t)
-		OptionGroup group = new OptionGroup()
-			.addOption(new Option("u", "url", false, "download using URLConnection"))
-			.addOption(new Option("t", "http", false, "download using HTTPClient"))
-			.addOption(new Option("h", "help", false, "show usage"));
+		OptionGroup group = new OptionGroup().addOption(new Option("u", "url", false, "download using URLConnection"))
+		        .addOption(new Option("t", "http", false, "download using HTTPClient"))
+		        .addOption(new Option("h", "help", false, "show usage"));
 		group.setRequired(false);
-		
-		options.addOptionGroup(group)
-			.addOption("o", "connection-timeout", true, "connection timeout (milsecs)")
-			.addOption("r", "timeout", true, "connection timeout (milsecs)");
+
+		options.addOptionGroup(group).addOption("o", "connection-timeout", true, "connection timeout (milsecs)")
+		        .addOption("r", "timeout", true, "connection timeout (milsecs)");
 
 		CommandLineParser parser = new BasicParser();
 		CommandLine cmd = null;
@@ -64,10 +64,10 @@ public class Main {
 
 		boolean isHttpClient = false;
 		Iterator<Option> iterator = cmd.iterator();
-		while(iterator.hasNext()) {
+		while (iterator.hasNext()) {
 			Option op = iterator.next();
-			
-			switch(op.getId()) {
+
+			switch (op.getId()) {
 			case 'o':
 				connectionTimeout = Integer.parseInt(op.getValue());
 				break;
@@ -83,29 +83,57 @@ public class Main {
 			case 'h':
 				usage();
 				break;
-			
+
 			}
 		}
-		
-		if(isHttpClient) {
+
+		if (isHttpClient) {
 			down = new BufferedHCDownloader(connectionTimeout, readTimeout);
 		} else {
 			down = new BufferedURLDownloader(connectionTimeout, readTimeout);
 		}
-		
-		
-		try {
-			// Check if user a URL
-			if (cmd.getArgList().size() == 1) {
-				File file = down.download(new URL(cmd.getArgs()[0]));
-				System.out.println("Path URL downloaded: " + file.getAbsolutePath());
-			} else {
-				System.out.println("Bad URL. Please type a valid URL");
-				usage();
+
+		// Check if user a URL
+		if (cmd.getArgList().size() > 1) {
+			List<Thread> ths = new ArrayList<Thread>();
+
+			for (String arg : cmd.getArgs()) {
+				final String url = arg;
+				final Downloader fDown = down;
+				
+				Thread th = new Thread(new Runnable() {
+
+					@Override
+					public void run() {
+						try {
+							File file = fDown.download(new URL(url));
+							System.out.println("Path URL downloaded: " + file.getAbsolutePath());
+						} catch (IOException e) {
+							System.out.println("Troubles downloading URL : " + e.getMessage());
+							e.printStackTrace();
+						}
+					}
+				});
+				th.start();
+				ths.add(th);
 			}
-		} catch (IOException e) {
-			System.out.println("Troubles downloading URL : " + e.getMessage());
-			e.printStackTrace();
+			
+			for(Thread th : ths) {
+				boolean joined = false;
+
+				while(!joined) {
+					try {
+		                th.join();
+		                joined = true;
+	                } catch (InterruptedException e) {
+	                	System.err.println("Join interrupted, try another time");
+	                }
+				}
+			}
+		} else {
+			System.out.println("Bad URL. Please type a valid URL");
+			usage();
 		}
+
 	}
 }

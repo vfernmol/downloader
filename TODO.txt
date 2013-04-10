@@ -26,12 +26,15 @@
 
 * Probar algun sistema como getopt para Main (Opciones simples un caracter (-a), largas (--algo) y simple incluir una -h (--help opcional) que llame a usage()
 
+* Añadir opciones de tiempo de espera para las peticiones (connection timeout y read timeout).
+
+
 + Meter javadoc en el codigo de la libreria
 
 ? Meter en el jar solo los resources que necesita el programa (libreria), quitar los xmls de pruebas y logeo. 
 
-- Añadir opciónes de tiempo de espera para las peticiones (connection timeout y read timeout).
 
+- 
 
 - Ant JUnit Reports falla al compilar el xslt en java 1.6 (investigar)
 
