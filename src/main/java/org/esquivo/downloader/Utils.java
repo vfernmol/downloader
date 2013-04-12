@@ -12,12 +12,16 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author woo
  * 
  */
 public class Utils {
+	private static final Logger LOG = LoggerFactory.getLogger(BufferedHCDownloader.class);
+	
 	private final static int BUFFER_SIZE = 4096;
 
 	private Utils() {
@@ -29,10 +33,12 @@ public class Utils {
 		BufferedOutputStream bos = null;
 
 		try {
-
 			bis = new BufferedInputStream(in, BUFFER_SIZE);
 
 			File tempFile = File.createTempFile("urldownloader-", null);
+			if (LOG.isDebugEnabled()) {
+				LOG.info("Writing to temp file : " + tempFile.getAbsolutePath());
+			}
 			bos = new BufferedOutputStream(new FileOutputStream(tempFile), BUFFER_SIZE);
             byte[] buffer = new byte[BUFFER_SIZE];
             int n;

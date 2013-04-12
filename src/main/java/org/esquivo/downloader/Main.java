@@ -1,11 +1,11 @@
 package org.esquivo.downloader;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.cli.BasicParser;
 import org.apache.commons.cli.CommandLine;
@@ -18,14 +18,16 @@ import org.apache.commons.cli.ParseException;
 
 public class Main {
 	static Options options = new Options();
-
+	private static final int DEFAULT_MAX_THREADS = 10;
+	private static final int EXEC_WAIT_TERM_SECS = 50;
+	
 	private Main() {
 
 	}
 
 	private static void usage() {
 		HelpFormatter formatter = new HelpFormatter();
-		formatter.printHelp("downloader [-h] | [-u|-t] <URL> [-o] <timeout (milsecs)>", options);
+		formatter.printHelp("downloader [-h|-u|-t] [-o <connectiontimeout (milsecs)> [-r <read timeout (milsecs>] [-m <max threads>] <URL>", options);
 		System.exit(-1);
 	}
 
@@ -38,16 +40,19 @@ public class Main {
 	public static void main(String[] args) {
 		int connectionTimeout = 0;
 		int readTimeout = 0;
+		int maxThreads = DEFAULT_MAX_THREADS;
 
 		// crear grupo de opciones (u | h | t)
 		OptionGroup group = new OptionGroup().addOption(new Option("u", "url", false, "download using URLConnection"))
 		        .addOption(new Option("t", "http", false, "download using HTTPClient"))
-		        .addOption(new Option("h", "help", false, "show usage"));
+		        .addOption(new Option("h", "help", false, "show this help"));
 		group.setRequired(false);
 
-		options.addOptionGroup(group).addOption("o", "connection-timeout", true, "connection timeout (milsecs)")
-		        .addOption("r", "timeout", true, "connection timeout (milsecs)");
-
+		options.addOptionGroup(group)
+			.addOption("o", "connection-timeout", true, "connection timeout (milsecs)")
+		    .addOption("r", "timeout", true, "read timeout (milsecs)")
+		    .addOption("m", "max-threads", true, "max concurrent threads");
+		
 		CommandLineParser parser = new BasicParser();
 		CommandLine cmd = null;
 
@@ -63,7 +68,9 @@ public class Main {
 		}
 
 		boolean isHttpClient = false;
-		Iterator<Option> iterator = cmd.iterator();
+		@SuppressWarnings("unchecked")
+        Iterator<Option> iterator = cmd.iterator();
+
 		while (iterator.hasNext()) {
 			Option op = iterator.next();
 
@@ -74,6 +81,8 @@ public class Main {
 			case 'r':
 				readTimeout = Integer.parseInt(op.getValue());
 				break;
+			case 'm':
+				maxThreads = Integer.parseInt(op.getValue());
 			case 'u':
 				isHttpClient = false;
 				break;
@@ -88,48 +97,43 @@ public class Main {
 		}
 
 		if (isHttpClient) {
-			down = new BufferedHCDownloader(connectionTimeout, readTimeout);
+			Map<String, Object> params = new HashMap<String, Object>();
+			
+			params.put(BufferedHCDownloader.CONNECTION_TIMEOUT, connectionTimeout);
+			params.put(BufferedHCDownloader.READ_TIMEOUT, readTimeout);
+			params.put(BufferedHCDownloader.MAX_THREADS, maxThreads);
+			
+			down = new BufferedHCDownloader(params);
 		} else {
 			down = new BufferedURLDownloader(connectionTimeout, readTimeout);
 		}
 
 		// Check if user a URL
 		if (cmd.getArgList().size() > 1) {
-			List<Thread> ths = new ArrayList<Thread>();
+
+			ExecutorService executor = Executors.newFixedThreadPool(maxThreads);
 
 			for (String arg : cmd.getArgs()) {
+
 				final String url = arg;
 				final Downloader fDown = down;
-				
-				Thread th = new Thread(new Runnable() {
 
-					@Override
-					public void run() {
-						try {
-							File file = fDown.download(new URL(url));
-							System.out.println("Path URL downloaded: " + file.getAbsolutePath());
-						} catch (IOException e) {
-							System.out.println("Troubles downloading URL : " + e.getMessage());
-							e.printStackTrace();
-						}
-					}
-				});
-				th.start();
-				ths.add(th);
+				executor.execute(new Url2File(url, fDown));
 			}
-			
-			for(Thread th : ths) {
-				boolean joined = false;
+			// This will make the executor accept no new threads
+			// and finish all existing threads in the queue
+			executor.shutdown();
+			// Wait until all threads are finish --> change code to wait the
+			// executor shutdown
 
-				while(!joined) {
-					try {
-		                th.join();
-		                joined = true;
-	                } catch (InterruptedException e) {
-	                	System.err.println("Join interrupted, try another time");
-	                }
-				}
+			try {
+				boolean b = executor.awaitTermination(EXEC_WAIT_TERM_SECS, TimeUnit.SECONDS);
+				System.out.println("All done: " + b);
+
+			} catch (InterruptedException e) {
+				e.printStackTrace();
 			}
+
 		} else {
 			System.out.println("Bad URL. Please type a valid URL");
 			usage();

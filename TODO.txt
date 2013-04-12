@@ -28,13 +28,23 @@
 
 * Añadir opciones de tiempo de espera para las peticiones (connection timeout y read timeout).
 
+* Use executor to run downloader in some threads
 
 + Meter javadoc en el codigo de la libreria
 
 ? Meter en el jar solo los resources que necesita el programa (libreria), quitar los xmls de pruebas y logeo. 
 
 
-- 
+- Añadir callback para conocer el progreso de las descargas
+Debe incluir
+-- Bytes leidos
+** Velocidad de descarga 
+-- Tamaño de las descargas (consultar httpheaders, Content-Length)
+-- Progreso
+
+- Obtener
+
+
 
 - Ant JUnit Reports falla al compilar el xslt en java 1.6 (investigar)
 
