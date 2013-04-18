@@ -37,5 +37,13 @@ public class BufferedURLDownloader implements Downloader {
 		
 		return Utils.writeToTempFile(conn.getInputStream());
 	}
+
+	@Override
+    public File download(URL url, DownloaderCallback callback) throws IOException {
+	    // TODO Auto-generated method stub
+	    return null;
+    }
+
+
 	
 }

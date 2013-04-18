@@ -1,4 +1,4 @@
-package org.esquivo.downloader;
+package org.esquivo.downloader.cli;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -15,6 +15,10 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.OptionGroup;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import org.esquivo.downloader.BufferedHCDownloader;
+import org.esquivo.downloader.BufferedURLDownloader;
+import org.esquivo.downloader.Downloader;
+import org.esquivo.downloader.DownloaderCallback;
 
 public class Main {
 	static Options options = new Options();
@@ -83,6 +87,7 @@ public class Main {
 				break;
 			case 'm':
 				maxThreads = Integer.parseInt(op.getValue());
+				break;
 			case 'u':
 				isHttpClient = false;
 				break;
@@ -109,7 +114,7 @@ public class Main {
 		}
 
 		// Check if user a URL
-		if (cmd.getArgList().size() > 1) {
+		if (cmd.getArgList().size() > 0) {
 
 			ExecutorService executor = Executors.newFixedThreadPool(maxThreads);
 
@@ -117,8 +122,10 @@ public class Main {
 
 				final String url = arg;
 				final Downloader fDown = down;
+				
+				DownloaderCallback call = new DownloadCallback();
 
-				executor.execute(new Url2File(url, fDown));
+				executor.execute(new Url2File(url, fDown, call));
 			}
 			// This will make the executor accept no new threads
 			// and finish all existing threads in the queue

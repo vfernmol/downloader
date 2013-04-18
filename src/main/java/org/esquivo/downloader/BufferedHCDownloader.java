@@ -2,6 +2,7 @@ package org.esquivo.downloader;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.util.Map;
 
@@ -29,6 +30,7 @@ public class BufferedHCDownloader implements Downloader {
 	public static final String CONNECTION_TIMEOUT = "connectionTimeout";
 	public static final String READ_TIMEOUT = "readTimeout";
 	public static final String MAX_THREADS = "maxThreads";
+	public static final String CONTENT_LENGTH = "content-length";
 	
 	protected HttpClient httpclient;
 
@@ -65,13 +67,19 @@ public class BufferedHCDownloader implements Downloader {
 		
 		this.httpclient = new DefaultHttpClient(cm);
 	}
-
+	
 	/* (non-Javadoc)
 	 * @see org.esquivo.downloader.Downloader#download(java.net.URL)
 	 */
 	@Override
 	public File download(URL url) throws IOException {
-		HttpGet httpget = new HttpGet(url.toString());
+		return this.download(url, null);
+	}
+
+
+	public File download(URL url, DownloaderCallback callback) throws IOException {
+		final HttpGet httpget = new HttpGet(url.toString());
+
 		setTimeouts(httpget.getParams());
 
 		if (LOG.isInfoEnabled()) {
@@ -83,12 +91,29 @@ public class BufferedHCDownloader implements Downloader {
 		HttpEntity entity = response.getEntity();
 		
 		if (entity != null) {
-			return Utils.writeToTempFile(entity.getContent());
+			final File tempFile = File.createTempFile("urldownloader-", null);
+			InputStream in;
+			
+			if (callback != null) {
+				long contentLength = -1;
+				if (response.getFirstHeader(CONTENT_LENGTH) != null) {
+					contentLength = Long.parseLong(response.getFirstHeader(CONTENT_LENGTH).getValue());
+				}
+				
+				in = new DownloadCountingInputStream(entity.getContent(), callback, tempFile, contentLength);
+				callback.progress(tempFile, contentLength, 0);
+			} else {
+				in = entity.getContent();
+			}
+			
+			Utils.writeToFile(in, tempFile);
+			
+			return tempFile;
 		}
 		
 		return null;
 	}
-	
+
 	public void dispose() {
 		this.httpclient.getConnectionManager().shutdown();
 	}
