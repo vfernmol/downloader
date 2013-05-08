@@ -16,7 +16,7 @@ public interface Downloader {
 	 * @return the file
 	 * @throws IOException Signals that an I/O exception has occurred.
 	 */
-	public File download(URL paramURL) throws IOException;
+	File download(URL paramURL) throws IOException;
 
 	
 	/**
@@ -27,6 +27,6 @@ public interface Downloader {
 	 * @return the file
 	 * @throws IOException Signals that an I/O exception has occurred.
 	 */
-	public File download(URL url, DownloaderCallback callback) throws IOException;
+	File download(URL url, DownloaderCallback callback) throws IOException;
 
 }

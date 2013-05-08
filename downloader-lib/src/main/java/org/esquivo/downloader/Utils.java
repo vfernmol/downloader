@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
  * @author woo
  * 
  */
-public class Utils {
+public final class Utils {
 	private static final Logger LOG = LoggerFactory.getLogger(BufferedHCDownloader.class);
 	
 	private final static int BUFFER_SIZE = 4096;

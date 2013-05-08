@@ -10,5 +10,5 @@ import java.io.File;
  *
  */
 public interface DownloaderCallback {
-	public void progress(File file, long totalSize, long readCount);
+	void progress(File file, long totalSize, long readCount);
 }
