@@ -16,6 +16,21 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <jettyVersion>7.2.0.v20101020</jettyVersion>
+        <commonsloggingVersion>1.1.1</commonsloggingVersion>
+        <httpclientVersion>4.2.2</httpclientVersion>
+        <log4jVersion>1.2.17</log4jVersion>
+        <slf4japiVersion>1.7.2</slf4japiVersion>
+        <slf4jlog4j12Version>1.7.2</slf4jlog4j12Version>
+        <commonscliVersion>1.2</commonscliVersion>
+        <commonsbeanutilscoreVersion>1.8.3</commonsbeanutilscoreVersion>
+        <commonsioVersion>2.4</commonsioVersion>
+        <junitVersion>4.9</junitVersion>
+        <coberturaVersion>2.5.2</coberturaVersion>
+        <javadocVersion>2.8</javadocVersion>
+        <surefireVersion>2.14.1</surefireVersion>
+        <jxrVersion>2.3</jxrVersion>
+        <checkstyleVersion>2.10</checkstyleVersion>
+        <assemblyVersion>2.4</assemblyVersion>
     </properties>
 
     <scm>
@@ -54,47 +69,47 @@
             <dependency>
                 <groupId>commons-logging</groupId>
                 <artifactId>commons-logging</artifactId>
-                <version>1.1.1</version>
+                <version>${commonsloggingVersion}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.httpcomponents</groupId>
                 <artifactId>httpclient</artifactId>
-                <version>4.2.2</version>
+                <version>${httpclientVersion}</version>
             </dependency>
             <dependency>
                 <groupId>log4j</groupId>
                 <artifactId>log4j</artifactId>
-                <version>1.2.17</version>
+                <version>${log4jVersion}</version>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
-                <version>1.7.2</version>
+                <version>${slf4japiVersion}</version>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-log4j12</artifactId>
-                <version>1.7.2</version>
+                <version>${slf4jlog4j12Version}</version>
             </dependency>
             <dependency>
                 <groupId>commons-cli</groupId>
                 <artifactId>commons-cli</artifactId>
-                <version>1.2</version>
+                <version>${commonscliVersion}</version>
             </dependency>
             <dependency>
                 <groupId>commons-beanutils</groupId>
                 <artifactId>commons-beanutils-core</artifactId>
-                <version>1.8.3</version>
+                <version>${commonsbeanutilscoreVersion}</version>
             </dependency>
             <dependency>
                 <groupId>commons-io</groupId>
                 <artifactId>commons-io</artifactId>
-                <version>2.4</version>
+                <version>${commonsioVersion}</version>
             </dependency>
             <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
-                <version>4.9</version>
+                <version>${junitVersion}</version>
                 <scope>test</scope>
             </dependency>
         </dependencies>
@@ -113,18 +128,57 @@
                     </configuration>
                 </plugin>
                 <plugin>
+                    <artifactId>maven-checkstyle-plugin</artifactId>
+                    <version>2.10</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-source-plugin</artifactId>
+                    <executions>
+                        <execution>
+                            <id>attach-sources</id>
+                            <goals>
+                                <goal>jar</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-javadoc-plugin</artifactId>
+                    <executions>
+                        <execution>
+                            <id>attach-javadocs</id>
+                            <goals>
+                                <goal>jar</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>cobertura-maven-plugin</artifactId>
+                    <version>${coberturaVersion}</version>
                     <configuration>
-                        <formats>
-                            <format>xml</format>
-                        </formats>
+                        <instrumentation>
+                            <ignores>
+                                <ignore>org.slf4j.*</ignore>
+                            </ignores>
+                        </instrumentation>
                     </configuration>
                     <executions>
                         <execution>
-                            <id>cobertura-check</id>
-                            <phase>verify</phase>
+                            <id>clean</id>
+                            <phase>pre-site</phase>
                             <goals>
+                                <goal>clean</goal>
+                            </goals>
+                        </execution>
+                        <execution>
+                            <id>instrument</id>
+                            <phase>site</phase>
+                            <goals>
+                                <goal>instrument</goal>
                                 <goal>cobertura</goal>
                             </goals>
                         </execution>
@@ -133,6 +187,10 @@
                 <!-- <plugin> <artifactId>maven-checkstyle-plugin</artifactId> <version>2.10</version> <dependencies> <dependency> 
                     <groupId>org.esquivo</groupId> <artifactId>downloader</artifactId> <version>1.0.0-SNAPSHOT</version> </dependency> </dependencies> 
                     </plugin> -->
+                <plugin>
+                    <artifactId>maven-assembly-plugin</artifactId>
+                    <version>${assemblyVersion}</version>
+                </plugin>
             </plugins>
         </pluginManagement>
     </build>
@@ -142,28 +200,47 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <version>2.8</version>
+                <version>${javadocVersion}</version>
             </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>cobertura-maven-plugin</artifactId>
+                <version>${maven.cobertura.plugin}</version>
+                <configuration>
+                    <formats>
+                        <format>xml</format>
+                        <format>html</format>
+                    </formats>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-report-plugin</artifactId>
+                <version>${surefireVersion}</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jxr-plugin</artifactId>
+                <version>${jxrVersion}</version>
             </plugin>
             <plugin>
                 <artifactId>maven-checkstyle-plugin</artifactId>
-                <version>2.10</version>
+                <version>${checkstyleVersion}</version>
                 <configuration>
                     <!-- <configLocation>src/main/resources/checkstyle_checks.xml</configLocation> -->
                     <includeTestSourceDirectory>true</includeTestSourceDirectory>
                     <excludes>**/generated/*.java</excludes>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>findbugs-maven-plugin</artifactId>
+                <version>2.5.2</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-pmd-plugin</artifactId>
+                <version>3.0.1</version>
             </plugin>
         </plugins>
     </reporting>
