@@ -65,7 +65,7 @@ if [ ! -x "$JAVACMD" ] ; then
 fi
 
 # Build classpath 
-DOWN_CLASSPATH="$DOWNLOADER_LIB/downloader-cli-1.0.0-SNAPSHOT.jar:$DOWNLOADER_LIB/downloader-lib-1.0.0-SNAPSHOT.jar"
+DOWN_CLASSPATH="${DOWNLOADER_HOME}/conf:$DOWNLOADER_LIB/*"
 
 # Exec
 exec "$JAVACMD" -classpath "$DOWN_CLASSPATH" $ant_sys_opts org.esquivo.downloader.cli.Main $@
